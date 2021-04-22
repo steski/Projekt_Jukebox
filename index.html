@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang = "de">
+
+    <head>
+        <title>JavaScript</title>
+        <link rel="manifest" href="manifest.json">
+        <meta name = "title" content = "JukiGaga-JukeBox - JuGagaJuBo mit Notenspur">
+        <meta name = "description" content = "Progammieren mit JS">
+        <meta name = "keywords" content = "">
+        <meta name = "author" content = "Stephan Tilinski, Constanze Deten, Vivian Mann">
+        <meta name = "date" content = "20210305">
+
+        <meta name="googlebot" content="noindex, nofollow"/>
+        <meta name="revisit-after" content="7 days">    
+        <meta charset = "utf-8">
+        <meta name = "viewport" content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <link href = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" rel = "stylesheet">
+        <link href = "css/style.css" rel = "stylesheet">
+        <!-- player icons von flaticon:  ->  https://www.flaticon.com/ -->
+
+        <!-- Schriften auf dem Server -> auch eingebettet von externer Plattform font.googleapis.com nutzbar -->
+        <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet" type="text/css"/>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+        </style>
+        <!-- Ende eingebettete Schrift -->
+    </head>
+
+    <body>
+        <div id="wrapper">
+
+            <!-- oberste Zeile: Logo mit 2 Lautsprechern re und li -->
+            <div id="logo">
+                <img id="speaker left" src="img/icons/icon_li.png" width="150">
+                <h1 id="header">JuGagaJuBo - JukiGagaJukeBox</h1>
+                <img id="speaker left" src="img/icons/icon_re.png" width="150">
+            </div>
+            <!-- ENDE oberste Zeile: Logo mit 2 Lautsprechern re und li -->
+
+            <!-- ausgeblendeter Visualisierungsbereich ( Canvas und Regler ) -->
+            <canvas id ="canvas" width="1000" height="300"></canvas>
+
+            <div id="canvas-vis-regler" class="hide">
+                <!-- Anzahl der Balken -->
+                <label id="visualsliderlabel" for = "visualslider">Balken-Anzahl</label>
+                <input type="range" max="10" min="1" value="4" class="slider" id="visualslider">
+
+                <!-- Fade bei den Balken -->
+                <label id="fadesliderlabel" for = "fadeslider">Fade</label>
+                <input type="range" max="10" min="0" value="5" class="slider" id="fadeslider">
+
+                <!-- Abstand zwischen den Balken -->
+                <label id="abstandsliderlabel" for = "abstandslider">Balken-Abstand</label>
+                <input type="range" max="30" min="1" value="15" class="slider" id="abstandslider">
+            </div>
+            <!-- ENDE ausgeblendeter Visualisierungsbereich ( Canvas und Regler ) -->
+
+
+            <!-- Info zu laufendem Titel -> Teil 1 -->
+            <div id="visualizer-wrapper" class="show">
+                <div id="laeuft">Now Playing: <span id="pl-name">&nbsp;</span>
+                </div>
+                <div id="interpret-titel">
+                    <div id="titel">Titel:
+                        <input id="titel-anzeige" readonly></input>
+                    </div>
+                    <div id="kuenstler">K&uuml;nstler:
+                        <input id="interpret-anzeige" readonly></input>
+                    </div>
+                </div>
+                <div id="sonst-titelinfo">
+                    <div id="jahr">ver&ouml;ffentlicht (Jahr):
+                        <input id="veroeff-anzeige" readonly></input>
+                    </div>
+                    <div id="gesamtdauer">gesamte Dauer / verbleibende Dauer:
+                        <input id="laenge-anzeige" value="Laufzeit des Titels" readonly></input>
+                    </div>
+                </div>
+                
+                <!-- Restlaufzeit wird jetzt mit Gesamtzeit in einem Feld angezeigt !!! -->
+                <!-- <div id="progressbar-text"><span id="verbleibenddauer">verbleibende Dauer:</span></div> -->
+
+                <div id = "fortschrittsbalken">
+                    <!-- <label id="fortschrittsbalkenlabel" for = "fortschrittsbalken">Testbalken</label> -->
+                    <input type="range" max="100" min="0" value="1" class="slider" id="fortschrittsbalken-inner">
+                </div>
+            <!-- Teil 1: ENDE Info zu laufendem Titel -->
+
+            <!-- Teil 2: Regler zum Abspielen/ Stoppen etc des laufenden Titels -->
+                <!-- Hier sind die Steuerungselemente
+                WICHTIG: Label wurde deaktiviert, da jetzt der Inhalt des Buttons umgeschrieben wird. -->
+                <div id = "steuerung">
+
+                    <div id="playpause">
+                        <img src="img/icons/pause.jpg" alt="Abspielen und Anhalten" title="Abspielen und Anhalten">
+                    </div>
+
+                    <div id="lautstaerke">
+                        <label id="volume" for = "volumeslider">
+                            <img src="img/icons/volume.jpg" alt="Lautstärke ein/aus" title="Lautstärke ein/aus"> 50%
+                        </label>
+                        <input type="range" id="volumeslider" max="100" min="0" value="50" class="slider">
+                    </div>
+
+                    <div id="skip-back">
+                        <img src="img/icons/skip-to-startagain.jpg" alt="zurückspringen" title="zurückspringen"></button>
+                    </div>
+
+                    <div id="zurueckspulen">
+                        <button id="zurueck"><img src="img/icons/left-arrow.png" alt="zurückspulen" title="zurückspulen" height="15"> &nbsp;30s</button>
+                        <input type="range" id="zurueckslider" max="120" min="10" value="30" class="slider">
+                    </div>
+
+                    <div id="vorspulen">
+                        <button id="vor">30s&nbsp; <img src="img/icons/right-arrow.png" alt="vorspulen" title="vorspulen" height="15"></button>
+                        <input type="range" id="vorslider" max="120" min="10" value="30" class="slider">
+                    </div>
+
+                    <div id="skip-to-next">
+                        <img src="img/icons/skip-to-next.jpg" alt="vorspringen" title="vorspringen"></button>
+                    </div>
+
+                    <div id="schleifen">
+                        <button id = "loop">5s <img src="img/icons/loop.png" alt="loop" title="loop" height="15"> ein</button>
+                        <input type="range" id="loopslider" max="10" min="1" value="5" class="slider">
+                    </div>
+
+                    <div id="geschwindigkeit">
+                        <label id="geschwindigkeitsliderlabel" for = "geschwindigkeitslider">
+                            <img src="img/icons/speed-o-meter.jpg" alt="Geschwindigkeit" title="Geschwindigkeit"> 1.0
+                        </label>
+                        <input type="range" max="20" min="1" value="10" class="slider" id="geschwindigkeitslider">
+                    </div>
+
+                    <div id = "titel-wiederholen">
+                        <img src="img/icons/repeat-pl.jpg" alt="Titel wiederholen" title="Titel wiederholen">
+                    </div>
+                </div>
+                <!-- ENDE Steuerung -->
+            </div>
+            <!-- Visualizer-Wrap zu Ende -->
+
+            <!-- 2 Spalten Hauptbereich: Genre, Songs, Play-List -->
+            <div id="auswahl" class="show">
+                <!-- linke Spalte: drag & drop -->
+                <div>
+                    <h1 id="songs-kopf">
+                        <span class="f0">S</span>
+                        <span class="f1">o</span>
+                        <span class="f2">n</span>
+                        <span class="f3">g</span>
+                        <span class="f4">a</span>
+                        <span class="f5">u</span>
+                        <span class="f6">s</span>
+                        <span class="f7">w</span>
+                        <span class="f8">a</span>
+                        <span class="f9">h</span>
+                        <span class="f10">l</span>
+                    </h1>
+                    <div id="drag-drop">
+                        <span><br>Hier k&ouml;nnen eigene Songs platziert werden <br>zum Bef&uuml;llen der Playlist.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- rechte Spalte: Play-List-Anzeigen -->
+                <div id="playlist-anzeige">
+                    <h1 id="playlist-kopf">
+                        <span class="f1">P</span>
+                        <span class="f2">l</span>
+                        <span class="f3">a</span>
+                        <span class="f4">y</span>
+                        <span class="f5">-</span>
+                        <span class="f7">L</span>
+                        <span class="f8">i</span>
+                        <span class="f9">s</span>
+                        <span class="f10">t</span>
+                    </h1>
+                    <div id="playlist">
+                        <output id="list">
+                            <!-- <div class="song-pl">Hier erscheinen die ausgewählten Songs.</div> -->
+                            <div id="pl-song">
+
+                            </div>
+                        </output>
+
+                        <button id="abspielen" class="highlight-b">abspielen</button>
+                        <button id="abbrechen" class="highlight-b">neu starten</button>
+                        <!-- ENDE Spalten Hauptbereich -->
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src = "js/main.js" type = "module"></script>
+
+    </body>
+</html>

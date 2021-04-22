@@ -1,0 +1,343 @@
+@font-face {
+    font-family: 'Trebuchet MS', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    src: local('TrebuchetMS'), url('/webfonts/TrebuchetMS.woff') format('woff'),
+    url('/webfonts/TrebuchetMS.woff2') format('woff2');
+    src: url('/webfonts/TrebuchetMS.woff') format('woff'),
+    url('/webfonts/TrebuchetMS.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Audiowide', cursive;
+    font-style: normal;
+    font-weight: normal;
+    src: local('Audiowide'), url('/webfonts/AudiowideRegular.woff') format('woff');
+}
+
+html {
+    background:
+    radial-gradient(black 15%, transparent 16%) 0 0,
+    radial-gradient(black 15%, transparent 16%) 8px 8px,
+    radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+    radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+    background-color:#221f27;
+    background-size:16px 16px;
+    font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', 'Tahoma', 'Arial', sans-serif;
+    font-size: 1rem;
+    font-weight: normal;
+    color: rgb(206, 206, 164);
+    text-align: center;
+}
+
+body {
+    width: 100%;
+    margin: auto;
+}
+
+h1, h2, h3 {
+    font-family: 'Audiowide', cursive;
+    padding: 0;
+    border: 0;
+    margin: 0;
+}
+
+a, a:hover {
+    color: rgb(206, 206, 164);
+}
+a, input, button, a:hover, input:hover, button:hover {
+    outline: none;
+    text-decoration: none;
+}
+
+.show{
+	display: block;
+}
+.hide{
+	display: none;
+}
+
+#wrapper {
+    width: 100rem;
+    margin: auto;
+}
+
+#logo {
+    width: 100rem;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#header {
+    font-size: 4rem;
+    line-height: 10rem;
+}
+
+/* ##### ANFANG visualizer-wrapper mit Canvas Titel-Infos und Spieldauer-Angaben/-Anzeigen ##### */
+#canvas {
+    width: 99rem;
+    border: solid 10px rgb(214, 102, 149);
+    margin-top: 30px;
+    display: none;
+}
+
+#canvas-vis-regler {
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+#visualizer-wrapper {
+    width: 97.5rem;
+    display: none;
+    font-size:1.6rem;
+    padding: 20px;    
+    border: solid 1px rgb(206,206,164);
+    margin-top: 20px;
+}
+
+#laeuft {
+    text-align: left;
+}
+
+#interpret-titel, #sonst-titelinfo, #steuerung {
+    display: flex;
+}
+
+#titel, #kuenstler, #jahr, #gesamtdauer {
+    width: 48.7rem;
+    height: 2rem;
+    font-size:1.6rem;
+    text-align: left;
+    margin-top: 1rem;
+}
+
+#titel-anzeige, #interpret-anzeige, #veroeff-anzeige, #laenge-anzeige {
+    cursor:inherit;
+    background: rgb(206, 206, 164);
+    line-height: 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+#titel-anzeige {
+    width: 42rem;
+}
+#interpret-anzeige {
+    width: 40.7rem;
+}
+#veroeff-anzeige {
+    width: 30.6rem;
+}
+#laenge-anzeige {
+    width: 20.1rem;
+}
+
+#fortschrittsbalken {
+    width: 97.3rem;
+    margin: 1.5rem 0;
+}
+
+#fortschrittsbalken-inner {
+    direction: rtl;
+    width: 97.3rem;
+    height: 1rem;
+    -webkit-appearance: none;
+    background: rgb(206, 206, 164);
+    background: -webkit-linear-gradient(left, violet, blue, cyan, green, yellow, orange, red ); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, violet, blue, cyan, green, yellow, orange, red ); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, violet, blue, cyan, green, yellow, orange, red) ; /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, violet, blue, cyan, green, yellow, orange, red ); /* Standard syntax (must be last) */;
+
+    border-radius: 100px;
+    box-shadow: 0 1px 5px #444 inset, 1px 1px 1px grey;
+    border: none;
+}
+
+/* Schreibweise für Range-Slider -> input[type=range]::-webkit... */
+#fortschrittsbalken-inner::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 2rem;
+    width: 1rem;
+    border-radius: 30%;
+    border: solid 1px rgb(206, 206, 164);
+    background: dodgerblue;
+}
+
+#fortschrittsbalken-inner:focus {
+    outline: none;
+}
+
+/* ##### ENDE Fortschrittsbalken ##### */
+
+/* ##### ENDE visualizer-wrapper ##### */
+
+
+/* ##### ANFANG alle Regler und Buttons unterhalb des Sliders ##### */
+#steuerung {
+    width:97.3rem;
+    height:50px;
+    font-size: 1rem;
+    display:flex;
+    margin-top:10px;
+}
+
+#steuerung div input[type=range]{
+    width:7rem
+}
+
+#playpause {
+    _margin-right:.2rem;
+}
+
+#playpause img {
+    cursor: pointer;
+}
+
+#playpause, #playpause img, #geschwindigkeitsliderlabel img {
+    width: 50px;
+}
+
+#lautstaerke, #vorspulen, #zurueckspulen, #schleifen, #geschwindigkeit {
+    width: 19rem;
+}
+
+#volume img, #volumeslider, #skip-back img, #vor, #zurueck, #skip-to-next img, #loop, #geschwindigkeitsliderlabel img, #geschwindigkeitslider {
+    cursor: pointer;
+    background: rgb(206, 206, 164);
+    height: 50px;
+    line-height: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#vor, #zurueck {
+    width: 80px;
+}
+
+#loop {
+    width: 100px;
+}
+
+#titel-wiederholen {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+#titel-wiederholen img {
+    width: 50px;
+    height: 50px;
+    margin: 0px 0px 10px 0px; 
+}
+
+/* ##### ENDE Regler und Buttons ##### */
+
+
+/* ##### ANFANG Genre, Songs und Playlist ##### */
+#auswahl {
+    width: 100rem;
+    display: flex;
+    margin-top: 30px;
+}
+
+#songs-kopf, #playlist-kopf {
+    background: rgb(206, 206, 164);
+    width: 36.3rem;
+    height: 70px;
+    color: black;
+    text-align: center;
+    line-height: 70px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+
+#playlist {
+    width: 36rem;
+    margin-left: 20px;
+    text-align: left;
+}
+
+#drag-drop {
+    cursor:pointer;
+    background: rgb(206, 206, 164);
+    min-width: 5rem;
+    max-width: 34.9rem;
+    height:10rem;
+    color:black;
+    font-family: 'Trebuchet MS', sans-serif;
+    text-align:center;
+    font-weight:bold;
+    font-size:1.4rem;
+    border:solid .7rem #4CAF50;
+    margin-left:20px;
+}
+
+#drag-drop:hover{
+    background:#4caf50;
+    color: white;
+    border: solid 0.7rem rgb(206, 206, 164);
+}
+
+#pl-song{
+    width:36.3rem;
+    display:flex;
+}
+
+.song-pl {
+    width: 35.3rem;
+    line-height: 2.2rem;
+    font-size: 1.4rem;
+    padding: 0 .5rem;
+    border: solid 0.1rem rgb(206, 206, 164);
+    margin: .3rem 0px;
+}
+
+.select-pl {
+    cursor: pointer;
+    background: rgb(206, 206, 164);
+    width: 2rem;
+    color: black;
+    font-size: 2rem;
+    text-align: center;
+    border: solid 0.1rem rgb(206, 206, 164);
+    margin: .3rem 0;
+}
+.select-pl:hover {
+    border:solid 0.5rem orange;
+}
+
+/* Rainbow */
+.f0 { color:magenta; }
+.f1 { color:blueviolet; }
+.f2 { color:royalblue; }
+.f3 { color:teal; }
+.f4 { color:green; }
+.f5 { color:greenyellow; }
+.f6 { color:gold; }
+.f7 { color:orange; }
+.f8 { color:red; }
+.f9 { color:mediumvioletred; }
+.f10 { color:purple; }
+
+.highlight-b {
+    cursor: pointer;
+    background: rgb(206, 206, 164);
+    height: 50px;
+    color: black;
+    font-size: 1.4rem;
+    font-weight: bold;
+    border: solid 0.5rem rgb(206, 206, 164);
+    margin: 0.7rem 0;
+}
+.highlight-b:hover{
+    border:solid 0.5rem orange;
+}
+
+#abspielen {
+    width: 18.1rem;
+    float:left;
+}
+#abbrechen {
+    width: 17.5rem;
+    float:right;
+}
