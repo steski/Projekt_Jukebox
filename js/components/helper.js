@@ -1,3 +1,7 @@
+/*
+Helfer Funktionen - HTML und delay Funktionen
+*/
+
 function group(css) {
     return document.querySelectorAll(css);
 };
@@ -16,6 +20,9 @@ function hotButtons(HTMLElement) {
     };
 };
 
-export {group, el, create, hotButtons};
+// Delay Funktion mit Promise, Es wird somit immer auf das Timeout Ergebnis gewartet
+const delay = millisekunden => new Promise(ergebnis => setTimeout(ergebnis, millisekunden));
+
+export {group, el, create, hotButtons, delay};
 
 // group derzeit nicht benötigt

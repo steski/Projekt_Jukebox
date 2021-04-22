@@ -1,18 +1,32 @@
-import {get,set} from './components/indexedDB.js';
-import {el, create, hotButtons} from "./components/htmlFunctions.js";
+import {get,set} from './indexedDB.js';
+import {el, delay} from "./helper.js";
+import {songAnzahlLesen} from "./indexedDB_Functions.js";
+import render from "./render.js";
+
+/*
+Hier befinden sich die 3 AudioFunktionen:
+songLesen --> Liest Song
+loadSongsFunktionen --> liest Song aus Speicher
+                        übergibt den Song an playAudioFunktionen
+playAudioFunktionen --> schreibt Titelinformationen
+                        startet Sound
+                        Canvas Sichtbar
+                        übergibt Sound (AudioQuelle) an render Funktion
+Eventlistener -->       Alle Eventlistener (Button und Slider), die sich unmittelbar mit dem derzeitigen Song befassen
+                        volumeslider + mouseleave set + mute button
+                        vorslider + mouseleave set + vorspulen button
+                        zurückslider + mouseleave set + zurückspulen button
+                        loopslider + mouseleave set + loop button
+                        geschwindigkeitslider + mouseleave set
+                        play/pause button
+                        vorheriger titel button + nächster titel button
+                        titel wiederholen button
+*/                      
 
 // ################################### VARIABLEN ###################################
 
-// Sound Vizualizer Variable
-let animate = null;
-// Variablen für Balken Farbe
-let r, g, b;
-// Variablen für invertierte Farben
-let rr, gg, bb;
-
 // Variablen für Songreihenfolge
 let songindex = 0;
-let songAnzahl;
 
 // Variablen für Steuerung
 let loopflag = 1;
@@ -22,213 +36,7 @@ let volumeTemp;
 
 // Variablen für Funktionen
 let sound;
-let party = 0;
 // ################################### VARIABLEN ENDE ###################################
-
-// Delay Funktion mit Promise, Es wird somit immer auf das Timeout Ergebnis gewartet
-const delay = millisekunden => new Promise(ergebnis => setTimeout(ergebnis, millisekunden));
-
-// Gibt die Anzahl der gespeicherten Songs in der Liste zurück
-// fängt bei 0 an
-async function songAnzahlLesen(){
-  songAnzahl = await get("songAnzahl").then((wert) => wert);
-  return songAnzahl;
-};
-
-// Render Funktion (hauptsächlich Visualisierung)
-function render(audioData) {
-
-  // Animate zurücksetzen
-  // Ansonsten erscheint kein Vizualizer mehr, wenn man während eines Lieds ein neues Lied spielt
-  animate = 0;
-
-  // Canvas deklaration
-  const canvas = document.querySelector('canvas');
-  const ctx = canvas.getContext("2d");
-
-  // Originalteil der Visualizer funktion
-  let context = new AudioContext(); // (Interface) Audio-processing graph
-  let src = context.createMediaElementSource(audioData); // Give the audio context an audio source,
-  // to which can then be played and manipulated
-  const analyser = context.createAnalyser(); // Create an analyser for the audio context
-  src.connect(analyser); // Connects the audio context source to the analyser
-  analyser.connect(context.destination); // End destination of an audio graph in a given context
-
-  const bufferLength = analyser.frequencyBinCount; // (read-only property)
-  // Unsigned integer, half of fftSize 
-  // Equates to number of data values you have to play with for the visualization
-  const dataArray = new Uint8Array(bufferLength); // Converts to 8-bit unsigned integer array
-  // At this point dataArray is an array with length of bufferLength but no values
-
-  // Startwerte der Balken
-  const WIDTH = canvas.width;
-  const HEIGHT = canvas.height;
-  let barWidth = (WIDTH / bufferLength) * 13;
-  let barHeight;
-  let x;
-  let bars;
-
-  // Variablen für Dauer Anzeige
-  let songVerbleibendDuration, songGesamtDuration, dauerVerbleibend;
-
-  // Start der Render Funktion (AnimationFrame)
-  function renderFrame(){
-
-      animate = requestAnimationFrame(renderFrame);
-
-      // Einkommentieren um einen Schallplattensprung zu simulieren
-      //schallPlattenSprung(audioData);
-      
-      // Hier können die Anzahl der Balken dynamisch während der Laufzeit geändert werden
-      // FFTSize muss Potenz von 2 sein, daher sind die Werte fest vorgegeben
-      // ist bei Abstand Wert 1 passend
-      if(Number(visualslider.value) === 0){
-          analyser.fftSize = 256;
-          bars = 10;
-      }
-      else if(Number(visualslider.value) === 1){
-          analyser.fftSize = 512;
-          bars = 20;
-      }
-      else if(Number(visualslider.value) === 2){
-          analyser.fftSize = 1024;
-          bars = 40;
-      }
-      else if(Number(visualslider.value) === 3){
-          analyser.fftSize = 2048;
-          bars = 80;
-      }
-      else if(Number(visualslider.value) === 4){
-          analyser.fftSize = 4096;
-          bars = 160;
-      }
-      else if(Number(visualslider.value) === 5){
-          analyser.fftSize = 8192;
-          bars = 320;
-      }; // Ende if
-
-      barWidth = (WIDTH / analyser.frequencyBinCount) * 13;
-
-      // verbleibende Dauer Berechnung
-      songVerbleibendDuration = audioData.duration-audioData.currentTime;
-      songGesamtDuration = Math.floor(audioData.duration/60) + 'min ' + Math.floor((audioData.duration%60)) + 's';
-      dauerVerbleibend = Math.floor(songVerbleibendDuration/60) + 'min ' + Math.floor((songVerbleibendDuration%60)) +'s';
-      
-      // Gesamtdauer und verbleibende Dauer in einem Feld anzeigen
-      el('#laenge-anzeige').value = `${songGesamtDuration}  /  ${dauerVerbleibend}`;
-
-      // Fortschrittsbalken dem Wert zuweisen
-      el('#fortschrittsbalken-inner').value = songVerbleibendDuration;
-
-      // Lautstärke während der Laufzeit änderbar
-      audioData.volume = Number(volumeslider.value)/100;
-
-      // Wenn das aktuelle AudioFile abgelaufen ist
-      // renderFrame durch return und cancelAnimationFrame(animate) stoppen
-      // Canvas wird zurückgesetzt
-      if (audioData.currentTime >= audioData.duration){
-          // Canvas Leeren
-          ctx.fillStyle = "rgba(0,0,0,1)";
-          ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-          // Animationframe canceln
-          cancelAnimationFrame(animate);
-          hotButtons(false);
-          animate = false;
-
-          // Funktion aufrufen, neuer Titel wird hier gestartet
-          loadSongsFunktionen();
-
-          // Funktion beenden
-          return;
-      }; // Ende if
-
-      // Canvas X Wert
-      x = 0;
-
-      // weiterer Originalteil der Visualizer Funktion
-      analyser.getByteFrequencyData(dataArray); // Copies the frequency data into dataArray
-      // Results in a normalized array of values between 0 and 255
-      // Before this step, dataArray's values are all zeros (but with length of 8192)
-
-      // Canvas Leeren bevor neue Balken angezeigt werden.
-      // Leztzter Wert ist der Fade Wert, dieser kommt dynamisch aus dem slider
-      ctx.fillStyle = `rgba(0,0,0,${Number(fadeslider.value)/10})`; 
-      ctx.fillRect(0, 0, WIDTH, HEIGHT); 
-
-      // Hier werden die einzelnen Farben gesetzt
-      for (let i = 0; i < bars; i++) {
-
-          // Balken Höhe. Wert passt gut zu Canvas Höhe mit 300px
-          barHeight = (dataArray[i] * 1.1);
-
-          if (dataArray[i] > 220) { // Pink
-              r = 250;
-              g = 0;
-              b = 220;
-          } else if (dataArray[i] > 210) { // Rot
-              r = 250;
-              g = 0;
-              b = 0;
-          } else if (dataArray[i] > 195) { // Orange
-              r = 250;
-              g = 100;
-              b = 0;
-          } else if (dataArray[i] > 180) { // yellow
-              r = 250;
-              g = 255;
-              b = 0;
-          } else if (dataArray[i] > 165) { // Grün Gelb
-              r = 204;
-              g = 255;
-              b = 0;
-          } else if (dataArray[i] > 150) { // Grün
-              r = 80;
-              g = 255;
-              b = 80;
-          } else if (dataArray[i] > 135) { // Grün Blau
-              r = 0;
-              g = 219;
-              b = 131;
-          } else if (dataArray[i] > 120) { // Blau
-              r = 80;
-              g = 80;
-              b = 250;
-          } else { // Hell blau für alles andere
-              r = 40;
-              g = 100;
-              b = 255;
-          };
-          // Farben invertieren
-          rr=255-r; gg=255-g; bb=255-b;
-
-          // Farben den Elementen zuweisen
-          el('#canvas').style.border = `solid 10px rgb(${r}, ${g}, ${b})`;
-          el('#drag-drop').style.background = `rgb(${r}, ${g}, ${b})`;
-          el('#drag-drop').style.color = `rgb(${rr}, ${gg}, ${bb})`;
-          el('#drag-drop').style.border = `solid 10px rgb(${rr}, ${gg}, ${bb})`;
-  
-          // Balken mit den Farben zuweisen
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-
-          // (Startpunkt X, Starpunkt y, Endpunkt X, Endpunkt Y)
-          if ( party === 1){
-              ctx.fillRect(x, (0), barWidth, barHeight);
-              ctx.fillRect(x, (HEIGHT - barHeight), barWidth, barHeight);
-          }
-          else {
-              ctx.fillRect(x, (HEIGHT - barHeight), barWidth, barHeight);
-          };
-
-          // -1 da bei 0 ein Pixel zwischen den Balken ist
-          x += barWidth + Number(abstandslider.value-1);
-      }; // Ende for Schleife
-  }; // Animation Ende
-
-  if (!animate) {
-      renderFrame();
-  };
-}; // Render Funktion Ende
 
 
 // Funktion zum Lesen des Songs
@@ -254,11 +62,11 @@ function songLesen(file){
 async function loadSongsFunktionen(){
 
     // Anzahl der Songs getten
-    songAnzahl = await songAnzahlLesen();
+    let songAnzahl = await songAnzahlLesen();
 
     // If Abfrage songindex mit songAnzahl vergleichen
     // setzt index wieder auf 0, wenn der letzte Song erreicht wurde (Liste beginnt von vorn)
-    if ( songAnzahl + 1 === songindex ){
+    if (songAnzahl+1 === songindex){
       songindex = 0;
     };
 
@@ -266,33 +74,17 @@ async function loadSongsFunktionen(){
     // audioQuelle ist dateipfad oder file (blob)
     let titel, kuenstlerName, erscheinungsDatum, audioQuelle;
 
-    // IF Abfrage Ob es ein Drag&Drop Sing ist oder ein Click-Json Sing ist
-    let songArray = await get(`Song${songindex}`).then((wert)=>wert);
+    // file blob lesen
+    let songGeladen = await get(`Song${songindex}`).then((wert)=>wert);
 
-    // IF JSON Song
-    if(songArray.constructor == Array){
-      // Werte speichern
-      titel = songArray[0];
-      kuenstlerName = songArray[1];
-      erscheinungsDatum = songArray[2];
-      // Audio Pfad
-      audioQuelle = songArray[3];
+    // audioQuelle = Song 
+    audioQuelle = await songLesen(songGeladen);
 
-    }
-    // ELSE Drag&Drop Song
-    else{
-      // file blob lesen
-      let songGeladen = await get(`Song${songindex}`).then((wert)=>wert);
-
-      // audioQuelle = Song 
-      audioQuelle = await songLesen(songGeladen);
-  
-      // Anzeige Variablen füllen
-      titel = songGeladen.name.split('.')[0];
-      // sind beim Drag&Drop Song nicht bekannt
-      kuenstlerName = '';
-      erscheinungsDatum = '';
-    }; // Ende IF
+    // Anzeige Variablen füllen
+    titel = songGeladen.name.split('.')[0];
+    // sind beim Drag&Drop Song nicht bekannt
+    kuenstlerName = '';
+    erscheinungsDatum = '';
 
     // Funktion zum Abspielen des Lieds aufrufen
     playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuelle);
@@ -304,11 +96,6 @@ async function loadSongsFunktionen(){
 // Audio Funktion
 function playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuelle){
 
-  // Anzeigen ändern
-  el('#titel-anzeige').value = titel;
-  el('#interpret-anzeige').value = kuenstlerName;
-  el('#veroeff-anzeige').value = erscheinungsDatum;
-  
   // alten Sound stoppen
   if (sound){
     sound.pause();
@@ -333,12 +120,12 @@ function playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuell
   el('#canvas').height = 300;
   el('#canvas-vis-regler').style.display = "block";
 
-  // muss Onload sein, da es erst vollständig geladen werden muss
+  // Anzeige setzen
   sound.onloadeddata = function(){
-    // Maximaldauer dem Fortschrittsbalken zuweisen
     // Der Momentane Wert wird im Animationframe (render funktion) berechnet und angezeigt
+    el('#titel-anzeige').innerHTML = titel;
+    el('#laenge-anzeige').innerHTML = Math.floor(sound.duration/60) + 'min ' + Math.floor((sound.duration%60)) + 's';
     el('#fortschrittsbalken-inner').max = sound.duration;
-
   }; // Ende onload
 
   // Aufruf render Funktion
@@ -513,18 +300,6 @@ el('#titel-wiederholen').addEventListener('click', function(){
 
 // experimentelle geheime Top-Secret Funktionen :>
 
-// Party Modus
-document.addEventListener('keydown',keyDown);
-
-function keyDown(b){
-    if(b.key === 'b' && party === 0){
-        party = 1;
-    }
-    else{
-        party = 0;      
-    };
-};
-
 // Schallplattensprung
 function schallPlattenSprung(audioData){
   // 1/1000 -> 0,1% Chance, dass der Zufall 1 wird
@@ -537,6 +312,4 @@ function schallPlattenSprung(audioData){
 };
 
 // Exportierte Funktionen
-export { 
-    el, create, songAnzahlLesen, loadSongsFunktionen
- }
+export {loadSongsFunktionen}

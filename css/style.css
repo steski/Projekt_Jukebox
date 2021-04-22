@@ -89,48 +89,30 @@ a, input, button, a:hover, input:hover, button:hover {
 #visualizer-wrapper {
     width: 97.5rem;
     display: none;
-    font-size:1.6rem;
-    padding: 20px;    
+    font-size:1.5rem;
+    padding: 1rem;    
     border: solid 1px rgb(206,206,164);
-    margin-top: 20px;
-}
-
-#laeuft {
-    text-align: left;
-}
-
-#interpret-titel, #sonst-titelinfo, #steuerung {
-    display: flex;
-}
-
-#titel, #kuenstler, #jahr, #gesamtdauer {
-    width: 48.7rem;
-    height: 2rem;
-    font-size:1.6rem;
-    text-align: left;
     margin-top: 1rem;
 }
 
-#titel-anzeige, #interpret-anzeige, #veroeff-anzeige, #laenge-anzeige {
-    cursor:inherit;
-    background: rgb(206, 206, 164);
-    line-height: 2rem;
-    font-size: 1.5rem;
+#titel, #dauerinfo, #steuerung {
+    display: flex;
+}
+
+#titel{
+    height: 1.5rem;
+    margin-top: 0.8rem;
+}
+
+#titel-label, #verbleibend-label, #laenge-label {
+    margin-left: 2rem;
+}
+
+#titel-anzeige, #verbleibend-anzeige, #laenge-anzeige {
+    margin-left: 2rem;
     font-weight: bold;
 }
 
-#titel-anzeige {
-    width: 42rem;
-}
-#interpret-anzeige {
-    width: 40.7rem;
-}
-#veroeff-anzeige {
-    width: 30.6rem;
-}
-#laenge-anzeige {
-    width: 20.1rem;
-}
 
 #fortschrittsbalken {
     width: 97.3rem;

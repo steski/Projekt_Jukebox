@@ -1,4 +1,4 @@
-import { create, el } from "../components/htmlFunctions.js";
+import { create, el } from "./helper.js";
 
 // Erstellt Liste der hinzugefügten Lieder
 export default function makeList(audioName){

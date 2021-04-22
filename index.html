@@ -3,14 +3,12 @@
 <html lang = "de">
 
     <head>
-        <title>JavaScript</title>
-        <link rel="manifest" href="manifest.json">
-        <meta name = "title" content = "JukiGaga-JukeBox - JuGagaJuBo mit Notenspur">
+        <title>JukuGagaJuBo</title>
+        <meta name = "title" content = "JukiGagaJuBo">
         <meta name = "description" content = "Progammieren mit JS">
         <meta name = "keywords" content = "">
         <meta name = "author" content = "Stephan Tilinski, Constanze Deten, Vivian Mann">
         <meta name = "date" content = "20210305">
-
         <meta name="googlebot" content="noindex, nofollow"/>
         <meta name="revisit-after" content="7 days">    
         <meta charset = "utf-8">
@@ -30,14 +28,13 @@
 
     <body>
         <div id="wrapper">
-
             <!-- oberste Zeile: Logo mit 2 Lautsprechern re und li -->
             <div id="logo">
                 <img id="speaker left" src="img/icons/icon_li.png" width="150">
                 <h1 id="header">JuGagaJuBo - JukiGagaJukeBox</h1>
                 <img id="speaker left" src="img/icons/icon_re.png" width="150">
             </div>
-            <!-- ENDE oberste Zeile: Logo mit 2 Lautsprechern re und li -->
+            <!-- ENDE oberste Zeile -->
 
             <!-- ausgeblendeter Visualisierungsbereich ( Canvas und Regler ) -->
             <canvas id ="canvas" width="1000" height="300"></canvas>
@@ -55,42 +52,24 @@
                 <label id="abstandsliderlabel" for = "abstandslider">Balken-Abstand</label>
                 <input type="range" max="30" min="1" value="15" class="slider" id="abstandslider">
             </div>
-            <!-- ENDE ausgeblendeter Visualisierungsbereich ( Canvas und Regler ) -->
+            <!-- ENDE ausgeblendeter Visualisierungsbereich -->
 
-
-            <!-- Info zu laufendem Titel -> Teil 1 -->
+            <!-- -> Teil 1: Info zu laufendem Titel -->
             <div id="visualizer-wrapper" class="show">
-                <div id="laeuft">Now Playing: <span id="pl-name">&nbsp;</span>
+                <div id="titel">
+                    <span id="titel-label">Titel:</span>
+                    <span id="titel-anzeige"></span>
+                    <span id="verbleibend-label">Verbleibend:</span>
+                    <span id="verbleibend-anzeige"></span>
+                    <span id="laenge-label">Gesamt:</span>
+                    <span id="laenge-anzeige"></span>
                 </div>
-                <div id="interpret-titel">
-                    <div id="titel">Titel:
-                        <input id="titel-anzeige" readonly></input>
-                    </div>
-                    <div id="kuenstler">K&uuml;nstler:
-                        <input id="interpret-anzeige" readonly></input>
-                    </div>
-                </div>
-                <div id="sonst-titelinfo">
-                    <div id="jahr">ver&ouml;ffentlicht (Jahr):
-                        <input id="veroeff-anzeige" readonly></input>
-                    </div>
-                    <div id="gesamtdauer">gesamte Dauer / verbleibende Dauer:
-                        <input id="laenge-anzeige" value="Laufzeit des Titels" readonly></input>
-                    </div>
-                </div>
-                
-                <!-- Restlaufzeit wird jetzt mit Gesamtzeit in einem Feld angezeigt !!! -->
-                <!-- <div id="progressbar-text"><span id="verbleibenddauer">verbleibende Dauer:</span></div> -->
-
                 <div id = "fortschrittsbalken">
-                    <!-- <label id="fortschrittsbalkenlabel" for = "fortschrittsbalken">Testbalken</label> -->
                     <input type="range" max="100" min="0" value="1" class="slider" id="fortschrittsbalken-inner">
                 </div>
-            <!-- Teil 1: ENDE Info zu laufendem Titel -->
+            <!-- Teil 1: ENDE -->
 
-            <!-- Teil 2: Regler zum Abspielen/ Stoppen etc des laufenden Titels -->
-                <!-- Hier sind die Steuerungselemente
-                WICHTIG: Label wurde deaktiviert, da jetzt der Inhalt des Buttons umgeschrieben wird. -->
+            <!-- Teil 2: Steuerung des laufenden Titels -->
                 <div id = "steuerung">
 
                     <div id="playpause">
@@ -138,11 +117,11 @@
                         <img src="img/icons/repeat-pl.jpg" alt="Titel wiederholen" title="Titel wiederholen">
                     </div>
                 </div>
-                <!-- ENDE Steuerung -->
+                <!-- Teil 2: ENDE -->
             </div>
             <!-- Visualizer-Wrap zu Ende -->
 
-            <!-- 2 Spalten Hauptbereich: Genre, Songs, Play-List -->
+            <!-- 2 Spalten Hauptbereich -->
             <div id="auswahl" class="show">
                 <!-- linke Spalte: drag & drop -->
                 <div>
@@ -165,7 +144,7 @@
                     </div>
                 </div>
 
-                <!-- rechte Spalte: Play-List-Anzeigen -->
+                <!-- rechte Spalte: Playlist -->
                 <div id="playlist-anzeige">
                     <h1 id="playlist-kopf">
                         <span class="f1">P</span>
@@ -182,20 +161,16 @@
                         <output id="list">
                             <!-- <div class="song-pl">Hier erscheinen die ausgewählten Songs.</div> -->
                             <div id="pl-song">
-
                             </div>
                         </output>
 
                         <button id="abspielen" class="highlight-b">abspielen</button>
-                        <button id="abbrechen" class="highlight-b">neu starten</button>
+                        <button id="abbrechen" class="highlight-b">zurücksetzen</button>
                         <!-- ENDE Spalten Hauptbereich -->
-                        
                     </div>
                 </div>
             </div>
         </div>
-
         <script src = "js/main.js" type = "module"></script>
-
     </body>
 </html>

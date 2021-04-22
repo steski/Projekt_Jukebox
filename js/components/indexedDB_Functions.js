@@ -1,5 +1,9 @@
 import {get, set} from './indexedDB.js';
 
+/*
+Funktionen, die Inhalte der IndexeDB liest oder speichert
+*/
+
 // Gibt die Anzahl der gespeicherten Songs in der Liste zurück
 // fängt bei 0 an
 async function songAnzahlLesen(){
@@ -21,7 +25,7 @@ function songSpeichern(songAnzahl, song){
       set("Song0",song);
       set("songAnzahl",0);
     };
-}; // songSpeichern Ende
+}; 
 
 export {songAnzahlLesen, songSpeichern};
   

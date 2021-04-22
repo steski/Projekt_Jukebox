@@ -1,6 +1,12 @@
-import {el} from "./htmlFunctions.js";
+import {el} from "./helper.js";
 import makeList from "./makeList.js";
-import {songAnzahlLesen, songSpeichern} from "./DB_Functions.js";
+import {songAnzahlLesen, songSpeichern} from "./indexedDB_Functions.js";
+
+// Blocken des Standard (play) Verhalten des Browsers
+function browserBlocken(evt){
+  evt.stopPropagation();
+  evt.preventDefault();
+}; 
 
 // DragOver Funktion (nur das Rüberziehen)
 function handleDragOver(evt){
@@ -9,11 +15,6 @@ function handleDragOver(evt){
     evt.dataTransfer.dropEffect = 'copy';
 };
 
-// Blocken des Standard (play) Verhalten des Browsers
-function browserBlocken(evt){
-    evt.stopPropagation();
-    evt.preventDefault();
-}; 
 
 // Funktion für den Drag & Drop - Verarbeitung des Songs
 async function processFile(evt){

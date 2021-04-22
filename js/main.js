@@ -1,8 +1,22 @@
 import makeList from "./components/makeList.js";
-import {el} from "./components/htmlFunctions.js";
+import {el} from "./components/helper.js";
 import {get, set, getMany, clear } from './components/indexedDB.js';
 import {handleDragOver, processFile} from "./components/Drag_Drop.js";
-import {songAnzahlLesen, loadSongsFunktionen} from "./funktionen.js";
+import {loadSongsFunktionen} from "./components/audioFunctions.js";
+import {songAnzahlLesen} from "./components/indexedDB_Functions.js";
+
+/*
+Startfunktionen + Eventlistener
+seite Start -->   liest erstmalig SongANzahl
+                  erstellt Liste aus der IndexDB
+                  liest und seztzt alle Einstellungen aus IndexDB
+checkBrowser -->  Browser auf bestimmte Inhalte Prüfen
+EventListener --> Drag & Drop --> reinziehen der Lieder
+                                  führt handleDragOver & processFile aus
+                  Abspielen --> loadSongSFunktionen
+                  zurücksetzen --> alles Löschen
+                  Canvas Slider --> Speicherung in indexDB
+*/
 
 (function(){
 
@@ -15,7 +29,7 @@ async function seiteStart(){
 
   // Liest die Songs aus der IndexedDB und schreibt den Namen in die Playlist
   // Anzahl der Songs getten
-  songAnzahl = await songAnzahlLesen();
+  let songAnzahl = await songAnzahlLesen();
 
   // Schleife, die von 0 bis songAnzahl zählt
   for( let songIndex = 0; songIndex <= songAnzahl; songIndex++ ){
