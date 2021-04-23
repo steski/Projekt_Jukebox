@@ -1,4 +1,4 @@
-import { loadSongsFunktionen } from "./audioFunctions.js";
+import {loadSongsFunktionen} from "./audioFunctions.js";
 import {el, hotButtons} from "./helper.js";
 
 // Sound Vizualizer Variable
@@ -41,14 +41,13 @@ export default function render(audioData) {
     let x;
     let bars;
   
-    // Variablen für Dauer Anzeige
-    let songVerbleibendDuration, dauerVerbleibend;
+    // Variable für Dauer Anzeige
+    let songVerbleibendDuration;
   
     // Start der Render Funktion (AnimationFrame)
     function renderFrame(){
   
         animate = requestAnimationFrame(renderFrame);
-  
         // Einkommentieren um einen Schallplattensprung zu simulieren
         //schallPlattenSprung(audioData);
         
@@ -84,8 +83,7 @@ export default function render(audioData) {
   
         // verbleibende Dauer Berechnung und zuweisen
         songVerbleibendDuration = audioData.duration-audioData.currentTime;
-        dauerVerbleibend = Math.floor(songVerbleibendDuration/60) + 'min ' + Math.floor((songVerbleibendDuration%60)) +'s';
-        el('#verbleibend-anzeige').innerHTML = dauerVerbleibend;
+        el('#verbleibend-anzeige').innerHTML = Math.floor(songVerbleibendDuration/60) + 'min ' + Math.floor((songVerbleibendDuration%60)) +'s';
         el('#fortschrittsbalken-inner').value = songVerbleibendDuration;
   
         // Lautstärke während der Laufzeit änderbar

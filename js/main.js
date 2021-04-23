@@ -1,6 +1,6 @@
 import makeList from "./components/makeList.js";
 import {el} from "./components/helper.js";
-import {get, set, getMany, clear } from './components/indexedDB.js';
+import {get, getMany, clear } from './components/indexedDB.js';
 import {handleDragOver, processFile} from "./components/Drag_Drop.js";
 import {loadSongsFunktionen} from "./components/audioFunctions.js";
 import {songAnzahlLesen} from "./components/indexedDB_Functions.js";
@@ -15,39 +15,33 @@ EventListener --> Drag & Drop --> reinziehen der Lieder
                                   führt handleDragOver & processFile aus
                   Abspielen --> loadSongSFunktionen
                   zurücksetzen --> alles Löschen
-                  Canvas Slider --> Speicherung in indexDB
 */
 
 (function(){
 
-let songAnzahl = 0;
+// let songAnzahl = 0;
 
 // ################################### SEITENAUFRUF START ###################################
 
 // Liest Songs und Einstellungen für den Start
-async function seiteStart(){
+async function loadStartSong(){
 
   // Liest die Songs aus der IndexedDB und schreibt den Namen in die Playlist
   // Anzahl der Songs getten
-  let songAnzahl = await songAnzahlLesen();
+  const songAnzahl = await songAnzahlLesen();
 
   // Schleife, die von 0 bis songAnzahl zählt
-  for( let songIndex = 0; songIndex <= songAnzahl; songIndex++ ){
-    
-    // Variablen Deklaration für die Songs
-    let audioName, songGeladen;
-
+  for(let songIndex = 0; songIndex <= songAnzahl; songIndex++){
     // aus DB laden
-    songGeladen = await get(`Song${songIndex}`).then((wert)=>wert);
-    // Song Name wird in Variable gespeichert
-    audioName = songGeladen.name.split('.')[0];
-
-    makeList(audioName);
+    const songGeladen = await get(`Song${songIndex}`).then((wert)=>wert);
+    makeList(songGeladen.name.slice(0, -4));
   }; // Ende Schleife
+};
 
+async function loadStartOptions(){
   // Werte der Einstellungen aus IndexedDB Lesen und eintragen
   // es wird getMany benutzt, anstatt jedes einzeln zu getten
-  let alleWerte = await getMany(["fade","visual","abstand","volume","vor","zurueck","loop","geschwindigkeit"]);
+  const alleWerte = await getMany(["fade","visual","abstand","volume","vor","zurueck","loop","geschwindigkeit"]);
 
   // Überprüfung ob Wert vorhanden. Kein Wert ist undefined, somit wird If nicht ausgeführt
   // beim erstmaligen Start sind bspw. keine Werte gespeichert
@@ -93,12 +87,13 @@ function checkBrowser(){
   else{
     // Fehlermeldung bei nicht unterstützt
     alert('Bitte keinen Steinzeitbrowser benutzen. Danke.')
-  }
+  };
 }; // Ende Checkbrowser Funktion 
 
 // Beide Startfunktionen werden direkt aufgerufen
 checkBrowser();
-seiteStart();
+loadStartSong();
+loadStartOptions();
 
 // ################################### SEITENAUFRUF ENDE ###################################
 
@@ -117,27 +112,15 @@ el('#abbrechen').addEventListener('click',function(){
 });
 
 // Spielt die Playliste
-el('#abspielen').addEventListener('click',function(){
+el('#abspielen').addEventListener('click',async function(){
   // Überprüfung ob Songs vorhanden sind
-  if( songAnzahl >= 0 ){
+  const songAnzahl = await songAnzahlLesen();
+  if( songAnzahl >= 1 ){
     loadSongsFunktionen();
   }
   else{
-    el('#drag-drop').innerHTML = "<br>Eine Liste besteht aus mindestens 2 Punkten.<br>Finde den Fehler!";
+    el('#drag-drop').innerHTML = "<br>Eine Liste besteht aus mindestens 2 Elementen.<br>Finde den Fehler!";
   };
-});
-
-// Speichern der Slider Einstellungen bei mouseleave
-el('#visualslider').addEventListener('mouseleave',function(){
-  set('visual',Number(this.value));
-});
-
-el('#fadeslider').addEventListener('mouseleave',function(){
-  set('fade',Number(this.value));
-});
-
-el('#abstandslider').addEventListener('mouseleave',function(){
-  set('abstand',Number(this.value));
 });
 
 }());

@@ -7,7 +7,7 @@ Funktionen, die Inhalte der IndexeDB liest oder speichert
 // Gibt die Anzahl der gespeicherten Songs in der Liste zurück
 // fängt bei 0 an
 async function songAnzahlLesen(){
-    let songAnzahlDB = await get("songAnzahl").then((wert) => wert);
+    const songAnzahlDB = await get("songAnzahl").then((wert) => wert);
     return songAnzahlDB;
 };
 
@@ -28,4 +28,3 @@ function songSpeichern(songAnzahl, song){
 }; 
 
 export {songAnzahlLesen, songSpeichern};
-  

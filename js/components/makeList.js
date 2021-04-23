@@ -1,14 +1,13 @@
-import { create, el } from "./helper.js";
+import {create, el} from "./helper.js";
 
 // Erstellt Liste der hinzugefügten Lieder
 export default function makeList(audioName){
-
     // neues div mit unter-div (name) und Button erstellen
     let plDiv = create('div');
     plDiv.setAttribute('id','pl-song');
     
     let audioDiv = create('div');
-    audioDiv.innerHTML = audioName;
+    audioDiv.innerHTML = audioName
     let plButton = create('div');
     plButton.innerHTML = '-';
   

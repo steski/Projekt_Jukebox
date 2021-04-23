@@ -21,6 +21,7 @@ Eventlistener -->       Alle Eventlistener (Button und Slider), die sich unmitte
                         play/pause button
                         vorheriger titel button + nächster titel button
                         titel wiederholen button
+                        Canvas Slider + mouseleave set
 */                      
 
 // ################################### VARIABLEN ###################################
@@ -38,7 +39,6 @@ let volumeTemp;
 let sound;
 // ################################### VARIABLEN ENDE ###################################
 
-
 // Funktion zum Lesen des Songs
 // gibt File Blob zurück
 function songLesen(file){
@@ -46,7 +46,7 @@ function songLesen(file){
   // Mit Pfeilfunktion
   return new Promise((resolve,reject) => {
     // neuen Filereader
-    let reader = new FileReader();
+    const reader = new FileReader();
     // Wenn er fertig ist wird funktion ausgeführt
     reader.onload = () => {
       // reader.result ist das Resultat, also das was reingedroppt wird
@@ -61,40 +61,25 @@ function songLesen(file){
 // Funktion zum Laden der Songs, Liest Songs aus Speicher, übergibt sie dem Player
 async function loadSongsFunktionen(){
 
-    // Anzahl der Songs getten
-    let songAnzahl = await songAnzahlLesen();
-
-    // If Abfrage songindex mit songAnzahl vergleichen
     // setzt index wieder auf 0, wenn der letzte Song erreicht wurde (Liste beginnt von vorn)
+    const songAnzahl = await songAnzahlLesen();
     if (songAnzahl+1 === songindex){
       songindex = 0;
     };
-
-    // Variablen Deklaration für die Songs
-    // audioQuelle ist dateipfad oder file (blob)
-    let titel, kuenstlerName, erscheinungsDatum, audioQuelle;
-
     // file blob lesen
-    let songGeladen = await get(`Song${songindex}`).then((wert)=>wert);
+    const songGeladen = await get(`Song${songindex}`).then((wert)=>wert);
+    // audioQuelle = Song file blob
+    const audioQuelle = await songLesen(songGeladen);
 
-    // audioQuelle = Song 
-    audioQuelle = await songLesen(songGeladen);
-
-    // Anzeige Variablen füllen
-    titel = songGeladen.name.split('.')[0];
-    // sind beim Drag&Drop Song nicht bekannt
-    kuenstlerName = '';
-    erscheinungsDatum = '';
-
-    // Funktion zum Abspielen des Lieds aufrufen
-    playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuelle);
+    // Funktion zum Abspielen des Lieds aufrufen mit Titel und Quelle als Übergabe
+    playAudioFunktionen(songGeladen.name.slice(0, -4), audioQuelle);
 
     // Index hochzählen
     songindex++;
 }; // Ende loadSong Funktion
 
 // Audio Funktion
-function playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuelle){
+function playAudioFunktionen(titel, audioQuelle){
 
   // alten Sound stoppen
   if (sound){
@@ -105,7 +90,7 @@ function playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuell
   if (pauseflag === 1){
     pauseflag = 0;
     el('#playpause').innerHTML = `<img src="img/icons/pause.jpg" alt="Abspielen und Anhalten" title="Abspielen und Anhalten">`;
-  }
+  };
 
   // Standard Audio Funktionen
   sound = new Audio();
@@ -126,11 +111,9 @@ function playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuell
     el('#titel-anzeige').innerHTML = titel;
     el('#laenge-anzeige').innerHTML = Math.floor(sound.duration/60) + 'min ' + Math.floor((sound.duration%60)) + 's';
     el('#fortschrittsbalken-inner').max = sound.duration;
-  }; // Ende onload
-
-  // Aufruf render Funktion
+  };
+  // Aufruf render Funktion für Visualizer
   render(sound);
-
 }; // Ende Audio Funktion
 
 // ################################### EVENT LISTENER ###################################
@@ -138,11 +121,6 @@ function playAudioFunktionen(titel, kuenstlerName, erscheinungsDatum, audioQuell
 el('#fortschrittsbalken-inner').addEventListener('input',function(){
   sound.currentTime = sound.duration-Number(this.value);
 });
-
-// Alle Steuerungsfunktionen beinhalten jeweils den Eventlistener
-// Dazu wird jeweils die anonyme Funktion direkt aufgerufen
-
-// Alle Werte werden beim Mouseleave Event in die DB gespeichert, da performancemäßig besser
 
 // volumeslider
 el('#volumeslider').addEventListener('input',function(){
@@ -295,6 +273,18 @@ el('#titel-wiederholen').addEventListener('click', function(){
   sound.currentTime = 0;
 });
 
+// Speichern der Visualizer Einstellungen bei mouseleave
+el('#visualslider').addEventListener('mouseleave',function(){
+  set('visual',Number(this.value));
+});
+
+el('#fadeslider').addEventListener('mouseleave',function(){
+  set('fade',Number(this.value));
+});
+
+el('#abstandslider').addEventListener('mouseleave',function(){
+  set('abstand',Number(this.value));
+});
 
 // ################################### EVENT LISTENER ENDE ###################################
 
@@ -312,4 +302,4 @@ function schallPlattenSprung(audioData){
 };
 
 // Exportierte Funktionen
-export {loadSongsFunktionen}
+export {loadSongsFunktionen};
