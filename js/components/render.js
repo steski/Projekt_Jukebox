@@ -1,5 +1,5 @@
 import {loadSongsFunktionen} from "./audioFunctions.js";
-import {el, hotButtons} from "./helper.js";
+import {el, timeConvert} from "./helper.js";
 
 // Sound Vizualizer Variable
 let animate = null;
@@ -77,13 +77,12 @@ export default function render(audioData) {
         else if(Number(visualslider.value) === 5){
             analyser.fftSize = 8192;
             bars = 320;
-        }; // Ende if
-  
+        }; // Ende Bars if
         barWidth = (WIDTH / analyser.frequencyBinCount) * 13;
   
         // verbleibende Dauer Berechnung und zuweisen
         songVerbleibendDuration = audioData.duration-audioData.currentTime;
-        el('#verbleibend-anzeige').innerHTML = Math.floor(songVerbleibendDuration/60) + 'min ' + Math.floor((songVerbleibendDuration%60)) +'s';
+        el('#verbleibend-anzeige').innerHTML = timeConvert(songVerbleibendDuration);
         el('#fortschrittsbalken-inner').value = songVerbleibendDuration;
   
         // Lautstärke während der Laufzeit änderbar
@@ -99,7 +98,6 @@ export default function render(audioData) {
   
             // Animationframe canceln
             cancelAnimationFrame(animate);
-            hotButtons(false);
             animate = false;
   
             // Funktion aufrufen, neuer Titel wird hier gestartet
@@ -118,14 +116,14 @@ export default function render(audioData) {
         // Before this step, dataArray's values are all zeros (but with length of 8192)
   
         // Canvas Leeren bevor neue Balken angezeigt werden.
-        // Leztzter Wert ist der Fade Wert, dieser kommt dynamisch aus dem slider
+        // Leztzter Wert ist der Fade Wert aus dem Slider
         ctx.fillStyle = `rgba(0,0,0,${Number(fadeslider.value)/10})`; 
         ctx.fillRect(0, 0, WIDTH, HEIGHT); 
   
         // Hier werden die einzelnen Farben gesetzt
         for (let i = 0; i < bars; i++) {
   
-            // Balken Höhe. Wert passt gut zu Canvas Höhe mit 300px
+            // Balken Höhe - passt für 300px
             barHeight = (dataArray[i] * 1.1);
   
             if (dataArray[i] > 220) { // Pink
@@ -140,7 +138,7 @@ export default function render(audioData) {
                 r = 250;
                 g = 100;
                 b = 0;
-            } else if (dataArray[i] > 180) { // yellow
+            } else if (dataArray[i] > 180) { // Gelb
                 r = 250;
                 g = 255;
                 b = 0;
@@ -165,20 +163,19 @@ export default function render(audioData) {
                 g = 100;
                 b = 255;
             };
+            // Balken mit den Farben zuweisen
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            // (Startpunkt X, Starpunkt y, Endpunkt X, Endpunkt Y)
+            ctx.fillRect(x, (HEIGHT - barHeight), barWidth, barHeight);
+
             // Farben invertieren
             rr=255-r; gg=255-g; bb=255-b;
-  
+
             // Farben den Elementen zuweisen
             el('#canvas').style.border = `solid 10px rgb(${r}, ${g}, ${b})`;
             el('#drag-drop').style.background = `rgb(${r}, ${g}, ${b})`;
             el('#drag-drop').style.color = `rgb(${rr}, ${gg}, ${bb})`;
             el('#drag-drop').style.border = `solid 10px rgb(${rr}, ${gg}, ${bb})`;
-    
-            // Balken mit den Farben zuweisen
-            ctx.fillStyle = `rgb(${r},${g},${b})`;
-  
-            // (Startpunkt X, Starpunkt y, Endpunkt X, Endpunkt Y)
-            ctx.fillRect(x, (HEIGHT - barHeight), barWidth, barHeight);
          
             // -1 da bei 0 ein Pixel zwischen den Balken ist
             x += barWidth + Number(abstandslider.value-1);

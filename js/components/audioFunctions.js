@@ -1,5 +1,5 @@
-import {get,set} from './indexedDB.js';
-import {el, delay} from "./helper.js";
+import {get} from './indexedDB.js';
+import {el, delay, timeConvert} from "./helper.js";
 import {songAnzahlLesen} from "./indexedDB_Functions.js";
 import render from "./render.js";
 
@@ -13,6 +13,7 @@ playAudioFunktionen --> schreibt Titelinformationen
                         Canvas Sichtbar
                         übergibt Sound (AudioQuelle) an render Funktion
 Eventlistener -->       Alle Eventlistener (Button und Slider), die sich unmittelbar mit dem derzeitigen Song befassen
+                          Werte werden in localStorage geschrieben
                         volumeslider + mouseleave set + mute button
                         vorslider + mouseleave set + vorspulen button
                         zurückslider + mouseleave set + zurückspulen button
@@ -61,21 +62,21 @@ function songLesen(file){
 // Funktion zum Laden der Songs, Liest Songs aus Speicher, übergibt sie dem Player
 async function loadSongsFunktionen(){
 
-    // setzt index wieder auf 0, wenn der letzte Song erreicht wurde (Liste beginnt von vorn)
-    const songAnzahl = await songAnzahlLesen();
-    if (songAnzahl+1 === songindex){
-      songindex = 0;
-    };
-    // file blob lesen
-    const songGeladen = await get(`Song${songindex}`).then((wert)=>wert);
-    // audioQuelle = Song file blob
-    const audioQuelle = await songLesen(songGeladen);
+  // setzt index wieder auf 0, wenn der letzte Song erreicht wurde (Liste beginnt von vorn)
+  const songAnzahl = await songAnzahlLesen();
+  if (songAnzahl+1 === songindex){
+    songindex = 0;
+  };
+  // file blob lesen
+  const songGeladen = await get(`Song${songindex}`).then((wert)=>wert);
+  // audioQuelle = Song file blob
+  const audioQuelle = await songLesen(songGeladen);
 
-    // Funktion zum Abspielen des Lieds aufrufen mit Titel und Quelle als Übergabe
-    playAudioFunktionen(songGeladen.name.slice(0, -4), audioQuelle);
+  // Funktion zum Abspielen des Lieds aufrufen mit Titel und Quelle als Übergabe
+  playAudioFunktionen(songGeladen.name.slice(0, -4), audioQuelle);
 
-    // Index hochzählen
-    songindex++;
+  // Index hochzählen
+  songindex++;
 }; // Ende loadSong Funktion
 
 // Audio Funktion
@@ -109,7 +110,7 @@ function playAudioFunktionen(titel, audioQuelle){
   sound.onloadeddata = function(){
     // Der Momentane Wert wird im Animationframe (render funktion) berechnet und angezeigt
     el('#titel-anzeige').innerHTML = titel;
-    el('#laenge-anzeige').innerHTML = Math.floor(sound.duration/60) + 'min ' + Math.floor((sound.duration%60)) + 's';
+    el('#laenge-anzeige').innerHTML = timeConvert(sound.duration);
     el('#fortschrittsbalken-inner').max = sound.duration;
   };
   // Aufruf render Funktion für Visualizer
@@ -129,7 +130,7 @@ el('#volumeslider').addEventListener('input',function(){
   muteflag = 0;
 });
 el('#volumeslider').addEventListener('mouseleave',function(){
-  set('volume', Number(this.value));
+  localStorage.setItem('volume',Number(this.value));
 });
 
 //vor slider
@@ -137,7 +138,7 @@ el('#vorslider').addEventListener('input',function(){
   el('#vor').innerHTML = `${Number(this.value)}s <img src="img/icons/right-arrow.png" alt="vorspulen" title="vorspulen" height="15">`;
 });
 el('#vorslider').addEventListener('mouseleave',function(){
-  set('vor',Number(this.value));
+  localStorage.setItem('vor',Number(this.value));
 });
 
 // zurück slider
@@ -145,7 +146,7 @@ el('#zurueckslider').addEventListener('input',function(){
   el('#zurueck').innerHTML = `<img src="img/icons/left-arrow.png" alt="zurückspulen" title="zurückspulen" height="15"> &nbsp;${Number(this.value)}s`;
 });
 el('#zurueckslider').addEventListener('mouseleave',function(){
-  set('zurueck',Number(this.value));
+  localStorage.setItem('zurueck',Number(this.value));
 });
 
 
@@ -159,7 +160,7 @@ el('#loopslider').addEventListener('input',function(){
   };
 });
 el('#loopslider').addEventListener('mouseleave',function(){
-  set('loop',Number(this.value));
+  localStorage.setItem('loop',Number(this.value));
 });
 
 // Geschwindigkeit Slider
@@ -169,10 +170,10 @@ el('#geschwindigkeitslider').addEventListener('input',function(){
     sound.playbackRate = Number(this.value)/10;
   };
   // Zahl immer mit einer Nachkommastelle
-  el('#geschwindigkeitsliderlabel').innerHTML = `<img src="img/icons/speed-o-meter.jpg" alt="Geschwindigkeit" title="Geschwindigkeit"> ${(Number(this.value)/10).toFixed(1)}`;
+  el('#geschwindigkeitsliderlabel').innerHTML = `<img src="img/icons/speed-o-meter.jpg" alt="Geschwindigkeit" title="Geschwindigkeit"> ${(Number(this.value)*10)}%`;
 });
 el('#geschwindigkeitslider').addEventListener('mouseleave',function(){
-  set('geschwindigkeit',Number(this.value));
+  localStorage.setItem('geschwindigkeit',Number(this.value));
 });
 
 // Play oder Pause Funktion
@@ -275,15 +276,15 @@ el('#titel-wiederholen').addEventListener('click', function(){
 
 // Speichern der Visualizer Einstellungen bei mouseleave
 el('#visualslider').addEventListener('mouseleave',function(){
-  set('visual',Number(this.value));
+  localStorage.setItem('visual',Number(this.value));
 });
 
 el('#fadeslider').addEventListener('mouseleave',function(){
-  set('fade',Number(this.value));
+  localStorage.setItem('fade',Number(this.value));
 });
 
 el('#abstandslider').addEventListener('mouseleave',function(){
-  set('abstand',Number(this.value));
+  localStorage.setItem('abstand',Number(this.value));
 });
 
 // ################################### EVENT LISTENER ENDE ###################################

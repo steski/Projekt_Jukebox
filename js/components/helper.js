@@ -2,27 +2,26 @@
 Helfer Funktionen - HTML und delay Funktionen
 */
 
-function group(css) {
-    return document.querySelectorAll(css);
-};
 function el(css){
     return document.querySelector(css);
 };
 function create(html){
     return document.createElement(html);
 };
-function hotButtons(HTMLElement) {
-    group('#gui-buttons button').forEach((val) => {
-        val.className = 'passiv';
-    });
-    if (HTMLElement) {
-        HTMLElement.className = 'aktiv';
-    };
-};
 
 // Delay Funktion mit Promise, Es wird somit immer auf das Timeout Ergebnis gewartet
 const delay = millisekunden => new Promise(ergebnis => setTimeout(ergebnis, millisekunden));
 
-export {group, el, create, hotButtons, delay};
+// Gibt Zeit in Xmin XXs aus
+function timeConvert(songVerbleibendDuration){
+    const second = Math.floor(songVerbleibendDuration%60);
+    if (second < 10) {
+        return `${Math.floor(songVerbleibendDuration/60)}min 0${second}s`
+    } else {
+        return `${Math.floor(songVerbleibendDuration/60)}min ${second}s`
+    };
+};
+
+export {el, create, delay, timeConvert};
 
 // group derzeit nicht benötigt

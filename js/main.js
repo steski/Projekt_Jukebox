@@ -1,6 +1,6 @@
 import makeList from "./components/makeList.js";
 import {el} from "./components/helper.js";
-import {get, getMany, clear } from './components/indexedDB.js';
+import {get, clear } from './components/indexedDB.js';
 import {handleDragOver, processFile} from "./components/Drag_Drop.js";
 import {loadSongsFunktionen} from "./components/audioFunctions.js";
 import {songAnzahlLesen} from "./components/indexedDB_Functions.js";
@@ -9,7 +9,7 @@ import {songAnzahlLesen} from "./components/indexedDB_Functions.js";
 Startfunktionen + Eventlistener
 seite Start -->   liest erstmalig SongANzahl
                   erstellt Liste aus der IndexDB
-                  liest und seztzt alle Einstellungen aus IndexDB
+                  liest und seztzt alle Einstellungen aus localStorage
 checkBrowser -->  Browser auf bestimmte Inhalte Prüfen
 EventListener --> Drag & Drop --> reinziehen der Lieder
                                   führt handleDragOver & processFile aus
@@ -39,50 +39,31 @@ async function loadStartSong(){
 };
 
 async function loadStartOptions(){
-  // Werte der Einstellungen aus IndexedDB Lesen und eintragen
-  // es wird getMany benutzt, anstatt jedes einzeln zu getten
-  const alleWerte = await getMany(["fade","visual","abstand","volume","vor","zurueck","loop","geschwindigkeit"]);
+  // Werte der Einstellungen aus localStorage Lesen und eintragen
+  const localStorageKeys = ["fade","visual","abstand","volume","vor","zurueck","loop","geschwindigkeit"];
+  const values = ["#fadeslider","#visualslider","#abstandslider","#volumeslider","#vorslider","#zurueckslider","#loopslider","#geschwindigkeitslider"];
+  const labels = ["#volume","#vor","#zurueck","#loop","#geschwindigkeitsliderlabel"];
 
-  // Überprüfung ob Wert vorhanden. Kein Wert ist undefined, somit wird If nicht ausgeführt
-  // beim erstmaligen Start sind bspw. keine Werte gespeichert
-    if(alleWerte[0]){
-      el('#fadeslider').value = alleWerte[0];
-      el('#fadesliderlabel').innerHTML = `Fade`;    
+  for (let i = 0; i < 8; i++){
+    if (localStorage.getItem(`${localStorageKeys[i]}`) !== null){
+      el(`${values[i]}`).value = localStorage.getItem(`${localStorageKeys[i]}`);
+      if (i == 4){
+        el(`${labels[i-3]}`).innerHTML = `${localStorage.getItem(`${localStorageKeys[i]}`)}s&nbsp; <img src="img/icons/right-arrow.png" alt="vorspulen" title="vorspulen" height="15">`;
+      } else if (i == 5){
+        el(`${labels[i-3]}`).innerHTML = `<img src="img/icons/left-arrow.png" alt="zurückspulen" title="zurückspulen" height="15"> &nbsp;${localStorage.getItem(`${localStorageKeys[i]}`)}s`;
+      } else if (i == 6){
+        el(`${labels[i-3]}`).innerHTML = `${localStorage.getItem(`${localStorageKeys[i]}`)}s <img src="img/icons/loop.png" alt="loop" title="loop" height="15"> ein`;  
+      } else if (i == 7){
+        el(`${labels[i-3]}`).innerHTML = `<img src="img/icons/speed-o-meter.jpg" alt="Geschwindigkeit" title="Geschwindigkeit"> ${localStorage.getItem(`${localStorageKeys[i]}`)*10}%`;
+      };
     };
-    if(alleWerte[1]){
-      el('#visualslider').value = alleWerte[1];
-      el('#visualsliderlabel').innerHTML = `Balken-Breite`;
-    };
-    if(alleWerte[2]){
-      el('#abstandslider').value = alleWerte[2];
-      el('#abstandsliderlabel').innerHTML = `Balken-Abstand`;
-    }
-    if(alleWerte[3]){
-      el('#volumeslider').value = alleWerte[3];
-      el('#volume').innerHTML = `<img src="img/icons/volume.jpg" alt="Lautstärke" title="Lautstärke"> ${alleWerte[3]}%`;
-    };
-    if(alleWerte[4]){
-      el('#vorslider').value = alleWerte[4];
-      el('#vor').innerHTML = `${alleWerte[4]}s&nbsp; <img src="img/icons/right-arrow.png" alt="vorspulen" title="vorspulen" height="15">`;
-    }; 
-    if(alleWerte[5]){
-      el('#zurueckslider').value = alleWerte[5];
-      el('#zurueck').innerHTML = `<img src="img/icons/left-arrow.png" alt="zurückspulen" title="zurückspulen" height="15"> &nbsp;${alleWerte[5]}s`;
-    };
-    if(alleWerte[6]){
-      el('#loopslider').value = alleWerte[6];
-      el('#loop').innerHTML = `${alleWerte[6]}s <img src="img/icons/loop.png" alt="loop" title="loop" height="15"> ein`;
-    };
-    if(alleWerte[7]){
-      el('#geschwindigkeitslider').value = alleWerte[7];
-      el('#geschwindigkeitsliderlabel').innerHTML = `<img src="img/icons/speed-o-meter.jpg" alt="Geschwindigkeit" title="Geschwindigkeit"> ${alleWerte[7]/10}`;
-    };
-};  // Ende seiteStart funktion
+  };
+};
 
 // Checken ob der Browser bestimmte Funktionen unterstützt
 function checkBrowser(){
   if(window.FileReader && window.Blob && window.FileList && window.File){
-    // Alles ok und nichts machen, wenn untersützt
+    // Alles ok
   }
   else{
     // Fehlermeldung bei nicht unterstützt
@@ -90,7 +71,7 @@ function checkBrowser(){
   };
 }; // Ende Checkbrowser Funktion 
 
-// Beide Startfunktionen werden direkt aufgerufen
+// Startfunktionen werden zum Start aufgerufen
 checkBrowser();
 loadStartSong();
 loadStartOptions();
